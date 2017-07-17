@@ -357,72 +357,86 @@ namespace smtvoiceSever
                         #endregion
                         case "getpicture":
                             #region 客户端获取图片
-                            addText("getpicture\r\n");
-                            //将请求转发到对应的设备IP地址
-                            dh.type = "getpicture";
-                            if (index < 0)
-                            {
+                            //addText("getpicture\r\n");
+                            ////将请求转发到对应的设备IP地址
+                            //dh.type = "getpicture";
+                            //if (index < 0)
+                            //{
 
-                                dh.state = "设备不在线！";
-                                //返回设备不在线
-                                bytes = Encoding.GetEncoding("GB2312").GetBytes(Helper.SetJson(dh));
-                                server.SendTo(bytes, pd.remote);
-                            }
-                            else
-                            {
-                                //将数据列表的数据清空，防止设备端误操作
-                                listViewUser.Items[lvi.Index].SubItems[3].Text = string.Empty;
-                                //将数据转发到设备端
-                                try
-                                {
-                                    sendToUdp(lvi.SubItems[2].Text, str);
-                                    //等待返回数据，10ms查一次，共等待5s
-                                    int tNum = 0;
-                                    while (tNum < 200)
-                                    {
-                                        Thread.Sleep(10);
-                                        addText(tNum.ToString() + "\r\n");
-                                        tNum++;
-                                        //查看是否有数据
-                                        addText(base64.Length.ToString() + "\r\n");
-                                        if (base64.Length > 0)//有返回数据
-                                        {
-                                            sendToUdp(pd.remote, base64);
-                                            addText("给网络端回复:" + pd.remote + "\r\n");
-                                            addText(base64 + "\r\n");
-                                            //清空数据
-                                            base64 = string.Empty;
-                                            //Thread.Sleep(10);
-                                            //给设备返回OK
-                                            //sendToUdp(lvi.SubItems[2].Text, "OK");
-                                            //addText("OK\r\n");
-                                            tNum = 501;
-                                            Thread.Sleep(10);
-                                        }
-                                    }
-                                    if (tNum == 200)//超时
-                                    {
-                                        //给网络返回超时
-                                        //超时
-                                        dh.state = "设备响应超时！";
-                                        bytes = Encoding.GetEncoding("GB2312").GetBytes(Helper.SetJson(dh));
-                                        server.SendTo(bytes, pd.remote);
-                                        addText("设备响应超时！\r\n");
-                                    }
-                                }
-                                catch
-                                {
-                                    dh.state = "设备与服务器连接失效！";
-                                    sendToUdp(pd.remote, Helper.SetJson(dh));
-                                }
-                            }
+                            //    dh.state = "设备不在线！";
+                            //    //返回设备不在线
+                            //    bytes = Encoding.GetEncoding("GB2312").GetBytes(Helper.SetJson(dh));
+                            //    server.SendTo(bytes, pd.remote);
+                            //}
+                            //else
+                            //{
+                            //    //将数据列表的数据清空，防止设备端误操作
+                            //    listViewUser.Items[lvi.Index].SubItems[3].Text = string.Empty;
+                            //    //将数据转发到设备端
+                            //    try
+                            //    {
+                            //        sendToUdp(lvi.SubItems[2].Text, str);
+                            //        //等待返回数据，10ms查一次，共等待5s
+                            //        int tNum = 0;
+                            //        while (tNum < 200)
+                            //        {
+                            //            Thread.Sleep(10);
+                            //            addText(tNum.ToString() + "\r\n");
+                            //            tNum++;
+                            //            //查看是否有数据
+                            //            addText(base64.Length.ToString() + "\r\n");
+                            //            if (base64.Length > 0)//有返回数据
+                            //            {
+                            //                sendToUdp(pd.remote, base64);
+                            //                addText("给网络端回复:" + pd.remote + "\r\n");
+                            //                addText(base64 + "\r\n");
+                            //                //清空数据
+                            //                base64 = string.Empty;
+                            //                //Thread.Sleep(10);
+                            //                //给设备返回OK
+                            //                //sendToUdp(lvi.SubItems[2].Text, "OK");
+                            //                //addText("OK\r\n");
+                            //                tNum = 501;
+                            //                Thread.Sleep(10);
+                            //            }
+                            //        }
+                            //        if (tNum == 200)//超时
+                            //        {
+                            //            //给网络返回超时
+                            //            //超时
+                            //            dh.state = "设备响应超时！";
+                            //            bytes = Encoding.GetEncoding("GB2312").GetBytes(Helper.SetJson(dh));
+                            //            server.SendTo(bytes, pd.remote);
+                            //            addText("设备响应超时！\r\n");
+                            //        }
+                            //    }
+                            //    catch
+                            //    {
+                            //        dh.state = "设备与服务器连接失效！";
+                            //        sendToUdp(pd.remote, Helper.SetJson(dh));
+                            //    }
+                            //}
                             break;
                         #endregion
                         case "uploadpicture":
                             #region 设备上传图片
-                            //显示图片
-                            pictureBox1.Image = new Bitmap(Base64StringToImage(dh.state));
-                            base64 = dh.state;
+                            if (dh.deviceid == "1")
+                            {
+                                base64 = dh.state;
+                            }
+                            else
+                            if (dh.deviceid == "ok")
+                            {
+                                base64 = base64 + dh.state;
+                                //显示图片
+                                pictureBox1.Image = new Bitmap(Base64StringToImage(base64));
+                                //保存图片到数据库
+                                updatavideo(base64);
+                            }
+                            else
+                            {
+                                base64 = base64 + dh.state;
+                            }
                             break;
                         #endregion
                         default:
@@ -487,7 +501,7 @@ namespace smtvoiceSever
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Base64StringToImage 转换失败/nException：" + ex.Message);
+                //MessageBox.Show("Base64StringToImage 转换失败/nException：" + ex.Message);
                 return null;
             }
         }
@@ -717,7 +731,7 @@ namespace smtvoiceSever
         /// <returns></returns>
         public static MySqlConnection getMySqlCon()
         {
-            String mysqlStr = "Database=webset;Data Source=120.27.45.38;User Id=root;Password=root;pooling=false;CharSet=utf8;port=3306";
+            String mysqlStr = "Database=web;Data Source=120.27.45.38;User Id=root;Password=root;pooling=false;CharSet=utf8;port=3306";
             // String mySqlCon = ConfigurationManager.ConnectionStrings["MySqlCon"].ConnectionString;
             MySqlConnection mysql = new MySqlConnection(mysqlStr);
             return mysql;
@@ -854,6 +868,29 @@ namespace smtvoiceSever
                     mySqlCommand = getSqlCommand(sqlUpdate, mysql);
                     mySqlCommand.ExecuteNonQuery();
                 }
+                //关闭
+                mysql.Close();
+            }
+            catch
+            { }
+        }
+
+        //保存视频流到数据库
+        private void updatavideo(string base64)
+        {
+            try
+            {
+                //创建数据库连接对象
+                MySqlConnection mysql = getMySqlCon();
+
+                //打开数据库
+                mysql.Open();
+
+                //修改sql
+                String sqlUpdate = "update video set base64='"+base64+ "' where id=0";
+                MySqlCommand mySqlCommand = getSqlCommand(sqlUpdate, mysql);
+                mySqlCommand.ExecuteNonQuery();
+
                 //关闭
                 mysql.Close();
             }
