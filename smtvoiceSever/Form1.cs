@@ -34,6 +34,7 @@ namespace smtvoiceSever
             //listViewUser.Items.Add(lvi1);
             //ListViewItem lvi = Helper.GetItem(listViewUser, "456789", 1);
             //textBox3.Text = lvi.SubItems[3].Text.Length.ToString();
+            base64 = new string[100];
         }
 
         public void addText(string str)
@@ -136,7 +137,8 @@ namespace smtvoiceSever
 
         }
 
-        String base64 = string.Empty;
+        String[] base64;
+        string _base64;
         //功能函数
         private void ThreadFunc(object obj)
         {
@@ -422,20 +424,24 @@ namespace smtvoiceSever
                             #region 设备上传图片
                             if (dh.deviceid == "1")
                             {
-                                base64 = dh.state;
+                                base64[int.Parse(dh.deviceid) - 1] = dh.state;
                             }
                             else
                             if (dh.deviceid == "ok")
                             {
-                                base64 = base64 + dh.state;
+                                _base64 = "";
+                                for (i = 0; i < int.Parse(dh.state); i++)
+                                {
+                                    _base64 = _base64 + base64[i];
+                                }
                                 //显示图片
-                                pictureBox1.Image = new Bitmap(Base64StringToImage(base64));
+                                pictureBox1.Image = new Bitmap(Base64StringToImage(_base64));
                                 //保存图片到数据库
-                                updatavideo(base64);
+                                updatavideo(_base64);
                             }
                             else
                             {
-                                base64 = base64 + dh.state;
+                                base64[int.Parse(dh.deviceid) - 1] = dh.state;
                             }
                             break;
                         #endregion
@@ -887,7 +893,7 @@ namespace smtvoiceSever
                 mysql.Open();
 
                 //修改sql
-                String sqlUpdate = "update video set base64='"+base64+ "' where id=0";
+                String sqlUpdate = "update video set base64='" + base64 + "' where id=0";
                 MySqlCommand mySqlCommand = getSqlCommand(sqlUpdate, mysql);
                 mySqlCommand.ExecuteNonQuery();
 
