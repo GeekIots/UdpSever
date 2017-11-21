@@ -1,7 +1,6 @@
 ﻿using MySql.Data.MySqlClient;
 using System;
 using System.Drawing;
-using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.NetworkInformation;
@@ -34,7 +33,6 @@ namespace smtvoiceSever
             //listViewUser.Items.Add(lvi1);
             //ListViewItem lvi = Helper.GetItem(listViewUser, "456789", 1);
             //textBox3.Text = lvi.SubItems[3].Text.Length.ToString();
-            base64 = new string[100];
         }
 
         public void addText(string str)
@@ -62,8 +60,6 @@ namespace smtvoiceSever
 
                 ip = new IPEndPoint(IPAddress.Parse(textBox1.Text), int.Parse(textBox2.Text));
                 server = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
-                server.ReceiveBufferSize = 1024 * 1024 * 8;
-                server.SendBufferSize = 1024 * 1024 * 8;
                 server.Bind(ip);
                 addText(string.Format("this is a UDP Server, host name is {0}\r\n", Dns.GetHostName()));
                 addText("Waiting for client\r\n");
@@ -118,7 +114,7 @@ namespace smtvoiceSever
                 {
                     Thread.Sleep(10);
                     addText("主线程开始\r\n\r\n");
-                    bytes = new byte[1024 * 1024 * 8];
+                    bytes = new byte[1000];
                     pd = new pointData();
                     pd.length = server.ReceiveFrom(bytes, ref Remote);
                     addText("主线程接收到了一组数据\r\n\r\n");
@@ -137,8 +133,6 @@ namespace smtvoiceSever
 
         }
 
-        String[] base64;
-        string _base64;
         //功能函数
         private void ThreadFunc(object obj)
         {
@@ -357,94 +351,6 @@ namespace smtvoiceSever
                             }
                             break;
                         #endregion
-                        case "getpicture":
-                            #region 客户端获取图片
-                            //addText("getpicture\r\n");
-                            ////将请求转发到对应的设备IP地址
-                            //dh.type = "getpicture";
-                            //if (index < 0)
-                            //{
-
-                            //    dh.state = "设备不在线！";
-                            //    //返回设备不在线
-                            //    bytes = Encoding.GetEncoding("GB2312").GetBytes(Helper.SetJson(dh));
-                            //    server.SendTo(bytes, pd.remote);
-                            //}
-                            //else
-                            //{
-                            //    //将数据列表的数据清空，防止设备端误操作
-                            //    listViewUser.Items[lvi.Index].SubItems[3].Text = string.Empty;
-                            //    //将数据转发到设备端
-                            //    try
-                            //    {
-                            //        sendToUdp(lvi.SubItems[2].Text, str);
-                            //        //等待返回数据，10ms查一次，共等待5s
-                            //        int tNum = 0;
-                            //        while (tNum < 200)
-                            //        {
-                            //            Thread.Sleep(10);
-                            //            addText(tNum.ToString() + "\r\n");
-                            //            tNum++;
-                            //            //查看是否有数据
-                            //            addText(base64.Length.ToString() + "\r\n");
-                            //            if (base64.Length > 0)//有返回数据
-                            //            {
-                            //                sendToUdp(pd.remote, base64);
-                            //                addText("给网络端回复:" + pd.remote + "\r\n");
-                            //                addText(base64 + "\r\n");
-                            //                //清空数据
-                            //                base64 = string.Empty;
-                            //                //Thread.Sleep(10);
-                            //                //给设备返回OK
-                            //                //sendToUdp(lvi.SubItems[2].Text, "OK");
-                            //                //addText("OK\r\n");
-                            //                tNum = 501;
-                            //                Thread.Sleep(10);
-                            //            }
-                            //        }
-                            //        if (tNum == 200)//超时
-                            //        {
-                            //            //给网络返回超时
-                            //            //超时
-                            //            dh.state = "设备响应超时！";
-                            //            bytes = Encoding.GetEncoding("GB2312").GetBytes(Helper.SetJson(dh));
-                            //            server.SendTo(bytes, pd.remote);
-                            //            addText("设备响应超时！\r\n");
-                            //        }
-                            //    }
-                            //    catch
-                            //    {
-                            //        dh.state = "设备与服务器连接失效！";
-                            //        sendToUdp(pd.remote, Helper.SetJson(dh));
-                            //    }
-                            //}
-                            break;
-                        #endregion
-                        case "uploadpicture":
-                            #region 设备上传图片
-                            if (dh.deviceid == "1")
-                            {
-                                base64[int.Parse(dh.deviceid) - 1] = dh.state;
-                            }
-                            else
-                            if (dh.deviceid == "ok")
-                            {
-                                _base64 = "";
-                                for (i = 0; i < int.Parse(dh.state); i++)
-                                {
-                                    _base64 = _base64 + base64[i];
-                                }
-                                //显示图片
-                                pictureBox1.Image = new Bitmap(Base64StringToImage(_base64));
-                                //保存图片到数据库
-                                updatavideo(_base64);
-                            }
-                            else
-                            {
-                                base64[int.Parse(dh.deviceid) - 1] = dh.state;
-                            }
-                            break;
-                        #endregion
                         default:
                             addText("default\r\n");
                             bytes = Encoding.GetEncoding("GB2312").GetBytes("无效指令！");
@@ -464,54 +370,6 @@ namespace smtvoiceSever
             }
             addText("执行完成\r\n\r\n");
         }
-
-        public static Image BytesToImage(byte[] buffer)
-        {
-            MemoryStream ms = new MemoryStream(buffer);
-            Image image = System.Drawing.Image.FromStream(ms);
-            return image;
-        }
-
-
-        //图片转为base64编码的文本   
-        private string ToBase64(Bitmap bmp)
-        {
-            try
-            {
-                MemoryStream ms = new MemoryStream();
-                bmp.Save(ms, System.Drawing.Imaging.ImageFormat.Jpeg);
-                byte[] arr = new byte[ms.Length];
-                ms.Position = 0;
-                ms.Read(arr, 0, (int)ms.Length);
-                ms.Close();
-                String strbaser64 = Convert.ToBase64String(arr);
-                return strbaser64;
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("ImgToBase64String 转换失败 Exception:" + ex.Message);
-                return "";
-            }
-        }
-
-        //base64编码的文本转为图片  
-        private Bitmap Base64StringToImage(string inputStr)
-        {
-            try
-            {
-                byte[] arr = Convert.FromBase64String(inputStr);
-                MemoryStream ms = new MemoryStream(arr);
-                Bitmap bmp = new Bitmap(ms);
-                ms.Close();
-                return bmp;
-            }
-            catch (Exception ex)
-            {
-                //MessageBox.Show("Base64StringToImage 转换失败/nException：" + ex.Message);
-                return null;
-            }
-        }
-
 
         //发送数据
         private void button2_Click(object sender, EventArgs e)
@@ -737,7 +595,7 @@ namespace smtvoiceSever
         /// <returns></returns>
         public static MySqlConnection getMySqlCon()
         {
-            String mysqlStr = "Database=web;Data Source=120.27.45.38;User Id=root;Password=root;pooling=false;CharSet=utf8;port=3306";
+            String mysqlStr = "Database=webset;Data Source=120.27.45.38;User Id=root;Password=root;pooling=false;CharSet=utf8;port=3306";
             // String mySqlCon = ConfigurationManager.ConnectionStrings["MySqlCon"].ConnectionString;
             MySqlConnection mysql = new MySqlConnection(mysqlStr);
             return mysql;
@@ -839,7 +697,7 @@ namespace smtvoiceSever
             }
         }
 
-        //用户上传数据，并插入到尾部（data15）
+        //用户上传数据
         private void userUpdate(string userid, string sensorid, string data)
         {
             try
@@ -856,47 +714,13 @@ namespace smtvoiceSever
 
                 MySqlDataReader reader = mySqlCommand.ExecuteReader();
 
-                string[] update = new string[15];
-
                 if (reader.Read())//存在，更新数据，不存在不处理
                 {
-                    if (reader.HasRows)
-                    {
-                        for (int i = 6; i < 20; i++)
-                            update[i - 6] = reader.GetString(i);
-                    }
-                    reader.Close();
-                    //将最新的数据添加到队列尾部
-                    update[14] = data;
-
                     //修改sql
-                    String sqlUpdate = "update usersensor set data1='" + update[0] + "',data2='" + update[1] + "',data3='" + update[2] + "', data4='" + update[3] + "' ,data5='" + update[4] + "', data6='" + update[5] + "', data7='" + update[6] + "', data8='" + update[7] + "', data9='" + update[8] + "', data10='" + update[9] + "', data11='" + update[10] + "' ,data12='" + update[11] + "', data13='" + update[12] + "',data14='" + update[13] + "',data15='" + update[14] + "'where userid='" + userid + "' and sensorid = '" + sensorid + "'";
+                    String sqlUpdate = "update usersensor set data='" + data + "'where userid='" + userid + "' and sensorid = '" + sensorid + "'";
                     mySqlCommand = getSqlCommand(sqlUpdate, mysql);
                     mySqlCommand.ExecuteNonQuery();
                 }
-                //关闭
-                mysql.Close();
-            }
-            catch
-            { }
-        }
-
-        //保存视频流到数据库
-        private void updatavideo(string base64)
-        {
-            try
-            {
-                //创建数据库连接对象
-                MySqlConnection mysql = getMySqlCon();
-
-                //打开数据库
-                mysql.Open();
-
-                //修改sql
-                String sqlUpdate = "update video set base64='" + base64 + "' where id=0";
-                MySqlCommand mySqlCommand = getSqlCommand(sqlUpdate, mysql);
-                mySqlCommand.ExecuteNonQuery();
-
                 //关闭
                 mysql.Close();
             }
