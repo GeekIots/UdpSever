@@ -86,3 +86,14 @@ C:\Users\Administrator\Desktop\UdpSever2017.4.11\smtvoiceSever\obj\Debug\smtvoic
 C:\Users\Administrator\Desktop\UdpSever2017.4.11\smtvoiceSever\obj\Debug\smtvoiceSever.csproj.GenerateResource.Cache
 C:\Users\Administrator\Desktop\UdpSever2017.4.11\smtvoiceSever\obj\Debug\smtvoiceSever.exe
 C:\Users\Administrator\Desktop\UdpSever2017.4.11\smtvoiceSever\obj\Debug\smtvoiceSever.pdb
+D:\github\UdpSever\smtvoiceSever\bin\Debug\smtvoiceSever.exe.config
+D:\github\UdpSever\smtvoiceSever\bin\Debug\smtvoiceSever.exe
+D:\github\UdpSever\smtvoiceSever\bin\Debug\smtvoiceSever.pdb
+D:\github\UdpSever\smtvoiceSever\bin\Debug\MySql.Data.xml
+D:\github\UdpSever\smtvoiceSever\bin\Debug\Newtonsoft.Json.xml
+D:\github\UdpSever\smtvoiceSever\obj\Debug\smtvoiceSever.csprojResolveAssemblyReference.cache
+D:\github\UdpSever\smtvoiceSever\obj\Debug\smtvoiceSever.Form1.resources
+D:\github\UdpSever\smtvoiceSever\obj\Debug\smtvoiceSever.Properties.Resources.resources
+D:\github\UdpSever\smtvoiceSever\obj\Debug\smtvoiceSever.csproj.GenerateResource.Cache
+D:\github\UdpSever\smtvoiceSever\obj\Debug\smtvoiceSever.exe
+D:\github\UdpSever\smtvoiceSever\obj\Debug\smtvoiceSever.pdb

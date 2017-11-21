@@ -477,7 +477,7 @@ namespace smtvoiceSever
             textBox1.Text = GetIp();
             if (textBox1.Text.Length < 5)
             {
-                textBox1.Text = "120.27.45.38";
+                textBox1.Text = "127.0.0.1";
             }
         }
 
@@ -595,7 +595,7 @@ namespace smtvoiceSever
         /// <returns></returns>
         public static MySqlConnection getMySqlCon()
         {
-            String mysqlStr = "Database=webset;Data Source=120.27.45.38;User Id=root;Password=root;pooling=false;CharSet=utf8;port=3306";
+            String mysqlStr = "Database=web;Data Source=127.0.0.1;User Id=root;Password=root;pooling=false;CharSet=utf8;port=3306";
             // String mySqlCon = ConfigurationManager.ConnectionStrings["MySqlCon"].ConnectionString;
             MySqlConnection mysql = new MySqlConnection(mysqlStr);
             return mysql;
@@ -709,23 +709,26 @@ namespace smtvoiceSever
                 mysql.Open();
 
                 //查询用户的设备id是否存在
-                String sqlSearch = "select * from usersensor where userid='" + userid + "' and sensorid = '" + sensorid + "' limit 0,1";
+                String sqlSearch = "select * from sensor where userid='" + userid + "' and id = '" + sensorid + "'";
                 MySqlCommand mySqlCommand = getSqlCommand(sqlSearch, mysql);
 
                 MySqlDataReader reader = mySqlCommand.ExecuteReader();
 
                 if (reader.Read())//存在，更新数据，不存在不处理
                 {
+                    reader.Close();
                     //修改sql
-                    String sqlUpdate = "update usersensor set data='" + data + "'where userid='" + userid + "' and sensorid = '" + sensorid + "'";
+                    String sqlUpdate = "update sensor set data='" + data + "' where userid='" + userid + "' and id = '" + sensorid + "'";
                     mySqlCommand = getSqlCommand(sqlUpdate, mysql);
                     mySqlCommand.ExecuteNonQuery();
                 }
                 //关闭
                 mysql.Close();
             }
-            catch
-            { }
+            catch(Exception ex)
+            {
+                MessageBox.Show(ex.ToString());
+            }
         }
 
 
