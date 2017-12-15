@@ -24,15 +24,29 @@ namespace smtvoiceSever
             CheckForIllegalCrossThreadCalls = false;
 
             listViewUser.FullRowSelect = true;//要选择就是一行
-            listViewUser.Columns.Add("用户名", 60, HorizontalAlignment.Center);
-            listViewUser.Columns.Add("ID", 100, HorizontalAlignment.Center);
-            listViewUser.Columns.Add("IP", 100, HorizontalAlignment.Center);
+            listViewUser.Columns.Add("UserID", 120, HorizontalAlignment.Center);
+            listViewUser.Columns.Add("DeviceID", 100, HorizontalAlignment.Center);
+            listViewUser.Columns.Add("IP", 160, HorizontalAlignment.Center);
             listViewUser.Columns.Add("ResponseData", 450, HorizontalAlignment.Center);
-
             //ListViewItem lvi1 = Helper.listAdd("备用", "456789", "192");
             //listViewUser.Items.Add(lvi1);
             //ListViewItem lvi = Helper.GetItem(listViewUser, "456789", 1);
             //textBox3.Text = lvi.SubItems[3].Text.Length.ToString();
+        }
+
+        private void Form1_Load(object sender, EventArgs e)
+        {
+            //存储配置
+            string configStr;
+            configStr = Ini.Read("配置", "TimeOut");
+            if (configStr != "null")
+                textBoxTimeOut.Text = configStr;
+            configStr = Ini.Read("配置", "IP");
+            if (configStr != "null")
+                textBox1.Text = configStr;
+            configStr = Ini.Read("配置", "Port");
+            if (configStr != "null")
+                textBox2.Text = configStr;
         }
 
         public void addText(string str)
@@ -61,8 +75,7 @@ namespace smtvoiceSever
                 ip = new IPEndPoint(IPAddress.Parse(textBox1.Text), int.Parse(textBox2.Text));
                 server = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
                 server.Bind(ip);
-                addText(string.Format("this is a UDP Server, host name is {0}\r\n", Dns.GetHostName()));
-                addText("Waiting for client\r\n");
+                addText("启动监听\n");
                 thread1 = new Thread(th1);
                 thread1.Start();
 
@@ -84,6 +97,7 @@ namespace smtvoiceSever
                 listViewUser.Items.Clear();
                 server.Close();
                 server.Dispose();
+                addText("停止服务\r\n");
                 //con.ServerStop();
                 //  threadCheckConnet.Abort();
             }
@@ -124,10 +138,11 @@ namespace smtvoiceSever
                     Thread clientThread = new Thread(new ParameterizedThreadStart(ThreadFunc));
                     clientThread.IsBackground = true;
                     clientThread.Start(pd);
+                    label5.Text = string.Format("当前连接数:{0}",listViewUser.Items.Count);
                 }
-                catch (Exception ex)
+                catch 
                 {
-                    addText(ex.ToString());
+                    // addText(ex.ToString());
                 }
             }
 
@@ -150,10 +165,11 @@ namespace smtvoiceSever
                 dh = Helper.GetJson(str);
 
                 //获取设备信息
-                ListViewItem lvi = Helper.GetItem(listViewUser, dh.userid, 1);
+                ListViewItem lvi = Helper.GetItem(listViewUser, dh.userid, dh.deviceid);
                 addText("userid:" + dh.userid + "\r\n");
+
                 //获取设备index
-                index = Helper.GetIndex(listViewUser, dh.userid, 1);
+                index = Helper.GetIndex(listViewUser, dh.userid, dh.deviceid);
                 addText("index:" + index.ToString() + "\r\n");
                 if (dh.type != null)
                 {
@@ -173,10 +189,10 @@ namespace smtvoiceSever
                                 }
                                 //添加
                                 lvi = new ListViewItem();
-                                lvi = Helper.listAdd("备用", dh.userid, pd.remote.ToString());
+                                lvi = Helper.listAdd(dh.userid, dh.deviceid, pd.remote.ToString());
                                 listViewUser.Items.Add(lvi);
 
-                                bytes = Encoding.GetEncoding("GB2312").GetBytes("ok");
+                                bytes = Encoding.GetEncoding("GB2312").GetBytes("OK");
                                 server.SendTo(bytes, pd.remote);
                             }
                             //else
@@ -209,15 +225,15 @@ namespace smtvoiceSever
                                     sendToUdp(lvi.SubItems[2].Text, str);
                                     //等待返回数据，10ms查一次，共等待5s
                                     int tNum = 0;
-                                    while (tNum < 200)
+                                    while (tNum < int.Parse(textBoxTimeOut.Text))
                                     {
                                         Thread.Sleep(10);
-                                        addText(tNum.ToString() + "\r\n");
+                                       // addText(tNum.ToString() + "\r\n");
                                         tNum++;
                                         //查看是否有数据
                                         lvi = new ListViewItem();
-                                        lvi = Helper.GetItem(listViewUser, dh.userid, 1);
-                                        addText(lvi.SubItems[3].Text.Length.ToString() + "\r\n");
+                                        lvi = Helper.GetItem(listViewUser, dh.userid,dh.deviceid);
+                                        //addText(lvi.SubItems[3].Text.Length.ToString() + "\r\n");
                                         if (lvi.SubItems[3].Text.Length > 0)//有返回数据
                                         {
                                             sendToUdp(pd.remote, lvi.SubItems[3].Text);
@@ -281,7 +297,7 @@ namespace smtvoiceSever
                                         tNum++;
                                         //查看是否有数据
                                         lvi = new ListViewItem();
-                                        lvi = Helper.GetItem(listViewUser, dh.userid, 1);
+                                        lvi = Helper.GetItem(listViewUser, dh.userid,dh.deviceid);
                                         addText(lvi.SubItems[3].Text.Length.ToString() + "\r\n");
                                         if (lvi.SubItems[3].Text.Length > 0)//有返回数据
                                         {
@@ -320,7 +336,7 @@ namespace smtvoiceSever
                             #region 设备端响应网络请求
                             addText("response\r\n");
                             //查看是否应经绑定到列表
-                            int i = Helper.GetIndex(listViewUser, dh.userid, 1);
+                            int i = Helper.GetIndex(listViewUser, dh.userid,dh.deviceid);
                             if (i >= 0)
                             {
                                 //写入数据
@@ -360,13 +376,12 @@ namespace smtvoiceSever
                 }
                 else
                 {
-                    server.SendTo(Encoding.GetEncoding("GB2312").GetBytes("数据格式不正确！\r\n" + "详细说明请登录www.smtvoice.com"), pd.remote);
+                    server.SendTo(Encoding.GetEncoding("GB2312").GetBytes("数据格式不正确！\r\n" + "详细说明请登录www.geek-iot.com"), pd.remote);
                 }
             }
             catch (Exception ex)
             {
                 addText(ex.ToString() + "\r\n");
-                //MessageBox.Show(ex.ToString());
             }
             addText("执行完成\r\n\r\n");
         }
@@ -463,23 +478,12 @@ namespace smtvoiceSever
             { }
         }
 
-
-
-
-
         private void listViewUser_MouseClick(object sender, MouseEventArgs e)
         {
             textBox8.Text = listViewUser.SelectedItems[0].SubItems[2].Text;
         }
 
-        private void Form1_Load(object sender, EventArgs e)
-        {
-            textBox1.Text = GetIp();
-            if (textBox1.Text.Length < 5)
-            {
-                textBox1.Text = "127.0.0.1";
-            }
-        }
+
 
 
         #region 获取本机IP
@@ -579,11 +583,6 @@ namespace smtvoiceSever
         {
             System.Environment.Exit(System.Environment.ExitCode);
         }
-
-
-
-
-
 
         //mysql
 
@@ -725,20 +724,29 @@ namespace smtvoiceSever
                 //关闭
                 mysql.Close();
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 MessageBox.Show(ex.ToString());
             }
         }
 
+        private void textBoxTimeOut_TextChanged(object sender, EventArgs e)
+        {
+            //存储配置
+            Ini.Write("配置", "TimeOut", textBoxTimeOut.Text);
+        }
 
+        private void textBox1_TextChanged(object sender, EventArgs e)
+        {
+            //存储配置
+            Ini.Write("配置", "IP", textBox1.Text);
+        }
 
-
-
-
-
-
-
+        private void textBox2_TextChanged(object sender, EventArgs e)
+        {
+            //存储配置
+            Ini.Write("配置", "Port", textBox2.Text);
+        }
     }
 
     /// <summary>
@@ -816,12 +824,13 @@ namespace smtvoiceSever
         /// <param name="keyValue">需要搜索的关键值，默认是第0个值</param>
         /// <returns></returns>
 
-        public static int GetIndex(ListView listview, string keyValue)
+        public static int GetIndex(ListView listview, string userid, string deviceid)
         {
+            ListView lv = new ListView();
             ListViewItem li;
             try
             {
-                li = listview.Items.Cast<ListViewItem>().First(x => x.Text == keyValue);
+                li = listview.Items.Cast<ListViewItem>().First(x => (x.Text == userid && x.SubItems[1].Text == deviceid));
                 return li.Index;
             }
             catch
@@ -837,26 +846,26 @@ namespace smtvoiceSever
         /// <param name="keyValue"></param>
         /// <param name="index"></param>
         /// <returns></returns>
-        public static int GetIndex(ListView listview, string keyValue, int index = 0)
-        {
-            ListViewItem li;
-            try
-            {
-                if (index == 0)
-                {
-                    li = listview.Items.Cast<ListViewItem>().First(x => x.Text == keyValue);
-                }
-                else
-                {
-                    li = listview.Items.Cast<ListViewItem>().First(x => x.SubItems[index].Text == keyValue);
-                }
-                return li.Index;
-            }
-            catch
-            {
-                return -1;
-            }
-        }
+        //public static int GetIndex(ListView listview, string keyValue, int index = 0)
+        //{
+        //    ListViewItem li;
+        //    try
+        //    {
+        //        if (index == 0)
+        //        {
+        //            li = listview.Items.Cast<ListViewItem>().First(x => x.Text == keyValue);
+        //        }
+        //        else
+        //        {
+        //            li = listview.Items.Cast<ListViewItem>().First(x => x.SubItems[index].Text == keyValue);
+        //        }
+        //        return li.Index;
+        //    }
+        //    catch
+        //    {
+        //        return -1;
+        //    }
+        //}
 
         /// <summary>
         /// 获取记录
@@ -865,12 +874,12 @@ namespace smtvoiceSever
         /// <param name="keyValue">需要搜索的关键值，默认是第0个值</param>
         /// <returns></returns>
 
-        public static ListViewItem GetItem(ListView listview, string keyValue)
+        public static ListViewItem GetItem(ListView listview, string userid, string deviceid)
         {
             ListViewItem li;
             try
             {
-                li = listview.Items.Cast<ListViewItem>().First(x => x.Text == keyValue);
+                li = listview.Items.Cast<ListViewItem>().First(x => x.Text == userid && x.SubItems[1].Text == deviceid);
                 return li;
             }
             catch
@@ -887,36 +896,37 @@ namespace smtvoiceSever
         /// <param name="keyValue"></param>
         /// <param name="index"></param>
         /// <returns></returns>
-        public static ListViewItem GetItem(ListView listview, string keyValue, int index = 0)
-        {
-            ListViewItem li;
-            try
-            {
-                if (index == 0)
-                {
-                    li = listview.Items.Cast<ListViewItem>().First(x => x.Text == keyValue);
-                }
-                else
-                {
-                    li = listview.Items.Cast<ListViewItem>().First(x => x.SubItems[index].Text == keyValue);
-                }
-                return li;
-            }
-            catch
-            {
-                li = new ListViewItem();
-                return li;
-            }
-        }
+        //public static ListViewItem GetItem(ListView listview, string keyValue, int index = 0)
+        //{
+        //    ListViewItem li;
+        //    try
+        //    {
+        //        if (index == 0)
+        //        {
+        //            li = listview.Items.Cast<ListViewItem>().First(x => x.Text == keyValue);
+        //        }
+        //        else
+        //        {
+        //            li = listview.Items.Cast<ListViewItem>().First(x => x.SubItems[index].Text == keyValue);
+        //        }
+        //        return li;
+        //    }
+        //    catch
+        //    {
+        //        li = new ListViewItem();
+        //        return li;
+        //    }
+        //}
 
 
         //增加记录
-        //listViewUser.Items.Add(Helper.listAdd("192.168.0.0", "123456789"));
-        public static ListViewItem listAdd(string userName, string userId, string IP, string responseData = "")
+
+
+        public static ListViewItem listAdd(string userid, string deviceid, string IP, string responseData = "")
         {
             ListViewItem item = new ListViewItem();
-            item.Text = userName;
-            item.SubItems.Add(userId);
+            item.Text = userid;
+            item.SubItems.Add(deviceid);
             item.SubItems.Add(IP);
             item.SubItems.Add(responseData);
             return item;

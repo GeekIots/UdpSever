@@ -45,7 +45,6 @@
             this.checkBox1 = new System.Windows.Forms.CheckBox();
             this.textBoxTimeOut = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
-            this.label6 = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // button3
@@ -89,6 +88,7 @@
             this.textBox2.Size = new System.Drawing.Size(171, 35);
             this.textBox2.TabIndex = 53;
             this.textBox2.Text = "2525";
+            this.textBox2.TextChanged += new System.EventHandler(this.textBox2_TextChanged);
             // 
             // label2
             // 
@@ -107,7 +107,7 @@
             this.textBox1.Name = "textBox1";
             this.textBox1.Size = new System.Drawing.Size(168, 32);
             this.textBox1.TabIndex = 51;
-            this.textBox1.Text = "192.168.31.113";
+            this.textBox1.TextChanged += new System.EventHandler(this.textBox1_TextChanged);
             // 
             // textBox3
             // 
@@ -121,9 +121,9 @@
             // 
             // button2
             // 
-            this.button2.Location = new System.Drawing.Point(527, 729);
+            this.button2.Location = new System.Drawing.Point(524, 609);
             this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(82, 66);
+            this.button2.Size = new System.Drawing.Size(82, 41);
             this.button2.TabIndex = 58;
             this.button2.Text = "发送";
             this.button2.UseVisualStyleBackColor = true;
@@ -132,7 +132,7 @@
             // textBox5
             // 
             this.textBox5.Font = new System.Drawing.Font("宋体", 18F);
-            this.textBox5.Location = new System.Drawing.Point(28, 742);
+            this.textBox5.Location = new System.Drawing.Point(28, 615);
             this.textBox5.Name = "textBox5";
             this.textBox5.Size = new System.Drawing.Size(469, 35);
             this.textBox5.TabIndex = 57;
@@ -141,7 +141,7 @@
             // 
             this.textBox8.BackColor = System.Drawing.Color.White;
             this.textBox8.Font = new System.Drawing.Font("宋体", 18F);
-            this.textBox8.Location = new System.Drawing.Point(141, 678);
+            this.textBox8.Location = new System.Drawing.Point(141, 572);
             this.textBox8.Name = "textBox8";
             this.textBox8.Size = new System.Drawing.Size(356, 35);
             this.textBox8.TabIndex = 60;
@@ -150,7 +150,7 @@
             // 
             this.label4.AutoSize = true;
             this.label4.Font = new System.Drawing.Font("宋体", 18F);
-            this.label4.Location = new System.Drawing.Point(24, 681);
+            this.label4.Location = new System.Drawing.Point(24, 575);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(130, 24);
             this.label4.TabIndex = 59;
@@ -160,7 +160,7 @@
             // 
             this.label5.AutoSize = true;
             this.label5.Font = new System.Drawing.Font("宋体", 18F);
-            this.label5.Location = new System.Drawing.Point(12, 596);
+            this.label5.Location = new System.Drawing.Point(9, 523);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(142, 24);
             this.label5.TabIndex = 61;
@@ -170,7 +170,7 @@
             // 
             this.listViewUser.Location = new System.Drawing.Point(632, 1);
             this.listViewUser.Name = "listViewUser";
-            this.listViewUser.Size = new System.Drawing.Size(701, 341);
+            this.listViewUser.Size = new System.Drawing.Size(693, 513);
             this.listViewUser.TabIndex = 42;
             this.listViewUser.UseCompatibleStateImageBehavior = false;
             this.listViewUser.View = System.Windows.Forms.View.Details;
@@ -179,6 +179,8 @@
             // checkBox1
             // 
             this.checkBox1.AutoSize = true;
+            this.checkBox1.Checked = true;
+            this.checkBox1.CheckState = System.Windows.Forms.CheckState.Checked;
             this.checkBox1.Location = new System.Drawing.Point(43, 263);
             this.checkBox1.Name = "checkBox1";
             this.checkBox1.Size = new System.Drawing.Size(96, 16);
@@ -189,39 +191,28 @@
             // textBoxTimeOut
             // 
             this.textBoxTimeOut.Font = new System.Drawing.Font("宋体", 18F);
-            this.textBoxTimeOut.Location = new System.Drawing.Point(781, 478);
+            this.textBoxTimeOut.Location = new System.Drawing.Point(122, 321);
             this.textBoxTimeOut.Name = "textBoxTimeOut";
             this.textBoxTimeOut.Size = new System.Drawing.Size(64, 35);
             this.textBoxTimeOut.TabIndex = 63;
             this.textBoxTimeOut.Text = "100";
+            this.textBoxTimeOut.TextChanged += new System.EventHandler(this.textBoxTimeOut_TextChanged);
             // 
             // label1
             // 
             this.label1.AutoSize = true;
             this.label1.Font = new System.Drawing.Font("宋体", 18F);
-            this.label1.Location = new System.Drawing.Point(657, 481);
+            this.label1.Location = new System.Drawing.Point(5, 325);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(118, 24);
             this.label1.TabIndex = 64;
             this.label1.Text = "超时时间:";
-            // 
-            // label6
-            // 
-            this.label6.AutoSize = true;
-            this.label6.Font = new System.Drawing.Font("宋体", 18F);
-            this.label6.Location = new System.Drawing.Point(727, 575);
-            this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(298, 24);
-            this.label6.TabIndex = 65;
-            this.label6.Text = "2017.4.11 增加超时间设置";
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1337, 807);
-            this.Controls.Add(this.label6);
-            this.Controls.Add(this.label1);
             this.Controls.Add(this.textBoxTimeOut);
             this.Controls.Add(this.checkBox1);
             this.Controls.Add(this.label5);
@@ -237,6 +228,7 @@
             this.Controls.Add(this.label2);
             this.Controls.Add(this.textBox1);
             this.Controls.Add(this.listViewUser);
+            this.Controls.Add(this.label1);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "Form1";
             this.Text = "物联网后台服务器";
@@ -264,7 +256,6 @@
         private System.Windows.Forms.CheckBox checkBox1;
         private System.Windows.Forms.TextBox textBoxTimeOut;
         private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.Label label6;
     }
 }
 
