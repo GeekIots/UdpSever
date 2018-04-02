@@ -594,7 +594,7 @@ namespace smtvoiceSever
         /// <returns></returns>
         public static MySqlConnection getMySqlCon()
         {
-            String mysqlStr = "Database=web;Data Source=127.0.0.1;User Id=root;Password=root;pooling=false;CharSet=utf8;port=3306";
+            String mysqlStr = "Database=web;Data Source=127.0.0.1;User Id=root;Password=sun8008208820;pooling=false;CharSet=utf8;port=3306";
             // String mySqlCon = ConfigurationManager.ConnectionStrings["MySqlCon"].ConnectionString;
             MySqlConnection mysql = new MySqlConnection(mysqlStr);
             return mysql;
